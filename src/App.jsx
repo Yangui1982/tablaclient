@@ -1,34 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Routes, Route, Link } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import ProjectsPage from './pages/ProjectsPage'
+import ScoreDetailPage from './pages/ScoreDetailPage'
+import HomePage from './pages/HomePage'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const loggedIn = !!localStorage.getItem('jwt')
+  const logout = () => {
+    localStorage.removeItem('jwt')
+    window.location.assign('/login')
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <header className="app-header">
+        <nav className="app-nav" aria-label="Navigation principale">
+          <Link to="/">Accueil</Link>             {/* lien vers la racine */}
+          <Link to="/projects">Projets</Link>
+        </nav>
+        <div style={{ marginLeft: 'auto' }}>
+          {loggedIn ? (
+            <button className="btn" onClick={logout}>Logout</button>
+          ) : (
+            <Link className="link-btn" to="/login">Login</Link>
+          )}
+        </div>
+      </header>
+
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<HomePage />} />           {/* <= route racine */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:projectId/scores/:scoreId" element={<ScoreDetailPage />} />
+          </Route>
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </main>
+    </div>
   )
 }
 
