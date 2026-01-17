@@ -48,10 +48,12 @@ export async function listScores(projectId, { page, per, withDoc } = {}) {
   return res.data
 }
 
-export async function getScore(projectId, scoreId, { withDoc } = {}) {
-  const res = await api.get(`/projects/${projectId}/scores/${scoreId}`, {
-    params: { with_doc: withDoc ? 'true' : undefined },
-  })
+export async function getScore(projectId, scoreId, opts = {}) {
+  const params = {}
+  if (opts.withDoc) params.with_doc = 'true'
+  if (typeof opts.trackIndex === 'number') params.track_index = String(opts.trackIndex)
+
+  const res = await api.get(`/projects/${projectId}/scores/${scoreId}`, { params })
   return res.data
 }
 
@@ -68,4 +70,9 @@ export async function uploadScore({ file, projectId, projectTitle, scoreId, scor
   const res = await api.post('/uploads', fd, { headers: { 'Content-Type': 'multipart/form-data' }, validateStatus: () => true })
   assertOk(res, 'Upload')
   return res.data
+}
+
+export async function deleteProject(projectId) {
+  const { data } = await api.delete(`/projects/${projectId}`);
+  return data;
 }
